@@ -23,7 +23,8 @@ export class PaymentService {
       amount: createPaymentDto.amount,
       productDescription: createPaymentDto.schemeId,
       paymentMode: 'UPIAPP',
-      returnUrl: 'http://localhost:3000/payment/callback',
+      returnUrl:
+        'https://zaakpay-integration-test.onrender.com/payment/callback',
     };
 
     const checkSum = this.calculateCheckSum(requestData);
