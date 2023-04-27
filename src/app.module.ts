@@ -1,11 +1,20 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { PaymentModule } from './payment/payment.module';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { ConfigModule } from '@nestjs/config';
+import { getTypeOrmConfigs } from './config/typeOrm.config';
 
 @Module({
-  imports: [PaymentModule],
-  controllers: [AppController],
-  providers: [AppService],
+  imports: [
+    // nest js modules
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
+
+    // TypeORM module
+    TypeOrmModule.forRoot(getTypeOrmConfigs()),
+
+    PaymentModule,
+  ],
 })
 export class AppModule {}

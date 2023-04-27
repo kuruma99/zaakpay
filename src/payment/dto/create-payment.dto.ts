@@ -1,5 +1,5 @@
 export class CreatePaymentDto {
   amount: number;
-  userEmail: string;
-  userUpiId: string;
+  userId: string;
+  schemeId: string;
 }

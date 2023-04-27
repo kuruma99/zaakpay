@@ -8,13 +8,12 @@ export class PaymentController {
   constructor(private readonly paymentService: PaymentService) {}
 
   @Post('initiate')
-  @Redirect('')
   async initiate(@Body() createPaymentDto: CreatePaymentDto) {
     return await this.paymentService.initiatePayment(createPaymentDto);
   }
 
   @Post('callback')
-  async handlePaymentCallback(@Body() response: ZaakPayCallbackResponse) {
+  async handlePaymentCallback(@Body() response: any) {
     return await this.paymentService.handlePaymentCallback(response);
   }
 }

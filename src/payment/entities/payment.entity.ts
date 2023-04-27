@@ -1,33 +1,29 @@
-import { Column, PrimaryGeneratedColumn } from 'typeorm';
+import { BaseEntity, Column, PrimaryGeneratedColumn } from 'typeorm';
 
-export class PaymentEntity {
-  @PrimaryGeneratedColumn('uuid', { name: 'payment_id' })
+export class PaymentEntity extends BaseEntity {
+  constructor(partial?: Partial<PaymentEntity>) {
+    super();
+    Object.assign(this, partial);
+  }
+
+  @Column({ name: 'payment_id' })
   paymentId: string;
 
-  @Column({ nullable: false })
+  @Column({ name: 'user_id', nullable: false })
   userId: string;
 
   @Column({ nullable: false })
   amount: number;
 
-  @Column({ name: 'user_email', nullable: false })
-  userEmail: string;
-
-  @Column({ name: 'user_upi_id', nullable: false })
-  userUpiId: string;
+  @Column({ name: 'scheme_id', nullable: false })
+  schemeId: string;
 
   @Column({ default: 'INR', nullable: false })
   currency: string;
 
-  @Column({ name: 'merchant_id', nullable: false })
-  merchantId: string;
-
-  @Column({ nullable: false, default: 'initiated' })
+  @Column({ name: 'payment_status', default: 'initiated', nullable: false })
   paymentStatus: string;
 
-  @Column()
-  upiIntentId: string;
-
-  @Column()
+  @Column({ name: 'transaction_id', unique: true, nullable: false })
   transactionId: string;
 }

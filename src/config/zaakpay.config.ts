@@ -1,8 +1,6 @@
-export const MERCHANT_ID = 'merchantId';
-
 export const zaakpay = {
-  secretKey: '',
+  secretKey: '0678056d96914a8583fb518caf42828a',
   transactApi: '',
-  updateApi: '',
-  checkStatusApi: '',
+  MERCHANT_ID: 'merchantId',
+  userEmail: 'gaurav@joinjumbo.com',
 };
