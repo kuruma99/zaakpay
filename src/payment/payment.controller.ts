@@ -16,4 +16,9 @@ export class PaymentController {
   async handlePaymentCallback(@Body() response: any) {
     return await this.paymentService.handlePaymentCallback(response);
   }
+
+  @Get('checksum')
+  async getCheckSum() {
+    return await this.paymentService.getCheckSum();
+  }
 }

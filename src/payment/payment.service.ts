@@ -1,13 +1,12 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreatePaymentDto } from './dto/create-payment.dto';
-import CryptoJS from 'crypto-js';
+import * as CryptoJS from 'crypto-js';
 import { zaakpay } from 'src/config/zaakpay.config';
 import { PaymentEntity } from './entities/payment.entity';
 import axios from 'axios';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { ZaakPayCallbackResponse } from 'src/constant';
-import { v4 as uuidv4 } from 'uuid';
+import { request } from 'http';
 
 @Injectable()
 export class PaymentService {
@@ -17,28 +16,38 @@ export class PaymentService {
   ) {}
   async initiatePayment(createPaymentDto: CreatePaymentDto) {
     const requestData = {
-      orderId: uuidv4(),
-      merchantIdentifier: zaakpay.MERCHANT_ID,
-      email: zaakpay.userEmail,
-      amount: createPaymentDto.amount,
-      productDescription: createPaymentDto.schemeId,
-      paymentMode: 'UPIAPP',
+      orderDetail: {
+        orderId: 'order1',
+        amount: createPaymentDto.amount,
+        currency: 'INR',
+        productDescription: createPaymentDto.schemeId,
+        email: zaakpay.userEmail,
+      },
+      paymentInstrument: {
+        paymentMode: 'UPIAPP',
+        netbanking: { bankid: '' },
+      },
       returnUrl:
         'https://zaakpay-integration-test.onrender.com/payment/callback',
     };
 
+    console.log(
+      `requestData: ${requestData.orderDetail}, ${requestData.paymentInstrument}, ${requestData.returnUrl}`,
+    );
+
     const checkSum = this.calculateCheckSum(requestData);
+    console.log(`checksum: ${checkSum}`);
 
     try {
       const response = await axios.post(
         'https://zaakstaging.zaakpay.com/transactU?v=8',
         {
-          data: requestData,
+          data: JSON.stringify(requestData),
           checkSum: checkSum,
         },
       );
 
-      console.log(response.data);
+      console.log(`response: ${response.data}`);
 
       const { responseCode, responseDescription, bankPostData } = response.data;
       if (responseCode === 208) {
@@ -80,7 +89,46 @@ export class PaymentService {
     return { message: 'Callback received' };
   }
 
-  calculateCheckSum = (requestData) => {
-    CryptoJS.HmacSHA256(requestData, zaakpay.secretKey);
-  };
+  calculateCheckSum(requestData) {
+    const checkSumString = JSON.stringify(requestData);
+    console.log(`checkSumString: ${checkSumString}`);
+    return CryptoJS.HmacSHA256(checkSumString, zaakpay.secretKey);
+  }
+
+  getCheckSum() {
+    const requestData = {
+      merchantIdentifier: 'b19e8f103bce406cbd3476431b6b7973',
+      showMobile: 'true',
+      mode: '0',
+      returnUrl:
+        'https://zaakstaging.zaakpay.com/api/automation/v1/payment/response',
+      orderDetail: {
+        orderId: 'ZP-Stag-15841047222321',
+        amount: '100',
+        currency: 'INR',
+        productDescription: 'Test Automation',
+        email: 'deepanshu.gehlot@mobikwik.com',
+        phone: '9999999999',
+        extra1: 'udf1',
+        extra2: 'udf2',
+        extra3: 'udf3',
+        extra4: 'udf4',
+        extra5: 'udf5',
+        product1Description: 'pd1',
+        product2Description: 'pd2',
+        product3Description: 'pd3',
+        product4Description: 'pd4',
+        firstName: 'Test_Fir',
+        lastName: 'Test_Las',
+      },
+      paymentInstrument: { paymentMode: 'UPIAPP', netbanking: { bankid: '' } },
+      billingAddress: { city: 'Gurgaon' },
+      shippingAddress: { city: 'Gurgaon' },
+    };
+
+    const checkSumString = JSON.stringify(requestData);
+    console.log(checkSumString);
+    const checkSum = CryptoJS.HmacSHA256(checkSumString, zaakpay.secretKey);
+    console.log(`checksum: ${checkSum}`);
+  }
 }
